@@ -1,28 +1,37 @@
-# ModData
+# ModData 1.1.0
 
-**WIP - TLD utility mod for saving/loading custom mod data.**
+**WIP - NOT FOR PRODUCTION USE**
 
-**TODO - Validation/Exceptions**
+TLD utility mod for saving/loading custom mod data
 
-* folder = \\Mods\\ModData\\\_saveSlotName_\\\_modName_
-* file ext = .moddata
-* default filename = Global
-* file format = plain text (default) or base64encoded
+Patches into GameManager.LoadSaveGameSlot to capture **slotName** and create the .moddata file ([Example File](./example/))
 
-**using ModData;**
+Will only allow saving/loading of data during a loaded game.
+
+* file = \\Mods\\ModData\\**slotName**.moddata (.zip file)
+* default entry filename = **ModName**
+* suffix entry filename = **ModName**_**Suffix**
 
 ## Usage
 
-returns bool
 ```cs
-ModDataManager.Save(string saveSlotName, string modName, string data);
-ModDataManager.Save(string saveSlotName, string modName, string data, bool useEncoding = false)
-ModDataManager.Save(string saveSlotName, string modName, string data, string? filename = null)
-ModDataManager.Save(string saveSlotName, string modName, string data, string? filename = null, bool useEncoding = false)
+using ModData;
 ```
 
-returns string
 ```cs
-ModDataManager.Load(string saveSlotName, string modName)
-ModDataManager.Load(string saveSlotName, string modName, string? filename = null)
+ModDataManager dataManager = new ModDataManager("ModName");
 ```
+```cs
+void dataManager.Save(string data) 
+void dataManager.Save(string data, string? suffix)
+```
+```cs
+string? dataManager.Load() 
+string? dataManager.Load(string? suffix)
+```
+
+### Todo
+* additional validation
+* return bool for Save()
+* file & entry name sanitation
+* remove ModData file when save game is deleted ?
