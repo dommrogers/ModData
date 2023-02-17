@@ -8,7 +8,7 @@ using System.Reflection;
 
 [assembly: AssemblyVersion(BuildInfo.ModVersion)]
 [assembly: AssemblyFileVersion(BuildInfo.ModVersion)]
-[assembly: MelonInfo(typeof(ModData.ModData), BuildInfo.ModName, BuildInfo.ModVersion, BuildInfo.ModAuthor)]
+[assembly: MelonInfo(typeof(ModData.Main), BuildInfo.ModName, BuildInfo.ModVersion, BuildInfo.ModAuthor)]
 
 //This tells MelonLoader that the mod is only for The Long Dark.
 [assembly: MelonGame("Hinterland", "TheLongDark")]
@@ -21,5 +21,5 @@ internal static class BuildInfo
 	/// Version numbers in C# are a set of 1 to 4 positive integers separated by periods.
 	/// Mods typically use 3 numbers. For example: 1.2.1
 	/// </summary>
-	internal const string ModVersion = "1.0.0";
+	internal const string ModVersion = "1.1.0";
 }
