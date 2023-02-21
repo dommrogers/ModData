@@ -4,16 +4,17 @@
 
 TLD utility mod for saving/loading custom mod data
 
+***
 * Simple usage
 * Detects the save name when loaded/created
 * Only allows load/save while a save game is active
 * Uses an internal cache to reduce disk read/writes
 * Deletes associated .moddata file when the save is deleted
 * [Example File](./example/)
-
-default file = \\Mods\\ModData\\**slotName**.moddata (.zip file)
-default entry filename = **modName**
-suffix entry filename = **modName**_**Suffix**
+---
+* default file = \\Mods\\ModData\\**slotName**.moddata (.zip file)
+* default entry filename = **modName**
+* suffix entry filename = **modName**_**Suffix**
 
 ## Usage
 
