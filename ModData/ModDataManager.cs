@@ -11,12 +11,12 @@ public class ModDataManager
 		debugMode = debug;
 	}
 
-	public static bool Save(string data)
+	public bool Save(string data)
 	{
 		return Save(data, null);
 	}
 
-	public static bool Save(string data, string? suffix)
+	public bool Save(string data, string? suffix)
 	{
 		if (currentModName == null)
 		{
@@ -26,12 +26,12 @@ public class ModDataManager
 		return saved;
 	}
 
-	public static string? Load()
+	public string? Load()
 	{
 		return Load(null);
 	}
 
-	public static string? Load(string? suffix)
+	public string? Load(string? suffix)
 	{
 		if (currentModName == null)
 		{
