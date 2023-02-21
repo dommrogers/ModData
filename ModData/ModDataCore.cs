@@ -15,8 +15,8 @@ internal class ModDataCore
 		modDataRoot = Path.Combine(MelonEnvironment.ModsDirectory, modDataFolderName);
 		if (!Directory.Exists(modDataRoot))
 		{
+			MelonLogger.Msg(ConsoleColor.Cyan,"Creating modDataRoot (" + modDataRoot + ")");
 			Directory.CreateDirectory(modDataRoot);
-			MelonLogger.Warning("Creating modDataRoot folder (" + modDataRoot + ")");
 		}
 	}
 
@@ -24,7 +24,7 @@ internal class ModDataCore
 	{
 		if (modDataSaveSlotName == null)
 		{
-			MelonLogger.Warning("No SaveSlot loaded.");
+			MelonLogger.Msg(ConsoleColor.Cyan, "No SaveSlot loaded.");
 			return;
 		}
 		modDataSaveSlotFile = Path.Combine(modDataRoot, modDataSaveSlotName + modDataFileExt);
@@ -32,8 +32,21 @@ internal class ModDataCore
 		// create and/or open the saveSlotFile
 		if (!File.Exists(modDataSaveSlotFile))
 		{
+			MelonLogger.Msg(ConsoleColor.Cyan, "Creating modDataSaveSlotFile (" + modDataSaveSlotFile + ")");
 			ZipUtils.CreateEmptyFile(modDataSaveSlotFile);
-			MelonLogger.Warning("Creating modDataSaveSlotFile (" + modDataSaveSlotFile + ")");
+		}
+	}
+
+	internal static void DeleteModDataSaveSlot(string slotName)
+	{
+		InitModDataRoot();
+
+		modDataSaveSlotFile = Path.Combine(modDataRoot, slotName + modDataFileExt);
+
+		if (File.Exists(modDataSaveSlotFile))
+		{
+			MelonLogger.Msg(ConsoleColor.Cyan, "Deleting modDataSaveSlotFile (" + modDataSaveSlotFile + ")");
+			File.Delete(modDataSaveSlotFile);
 		}
 
 	}
@@ -49,11 +62,11 @@ internal class ModDataCore
 	{
 		if (entrySuffix != null)
 		{
-			entryName += "_"+ entrySuffix;
+			entryName += "_" + entrySuffix;
 		}
 		if (modDataSaveSlotFile == null)
 		{
-			MelonLogger.Warning("No SaveSlot loaded.");
+			MelonLogger.Msg(ConsoleColor.Cyan, "No SaveSlot loaded.");
 			return;
 		}
 		ZipUtils.WriteEntry(modDataSaveSlotFile, entryName, entryData);
@@ -67,7 +80,7 @@ internal class ModDataCore
 		}
 		if (modDataSaveSlotFile == null)
 		{
-			MelonLogger.Warning("No SaveSlot loaded.");
+			MelonLogger.Msg(ConsoleColor.Cyan, "No SaveSlot loaded.");
 			return null;
 		}
 		return ZipUtils.ReadEntry(modDataSaveSlotFile, entryName);

@@ -1,5 +1,4 @@
-﻿
-namespace ModData;
+﻿namespace ModData;
 
 public class ModDataManager
 {
@@ -8,7 +7,6 @@ public class ModDataManager
 	public ModDataManager(string modName)
 	{
 		currentModName = modName;
-		MelonLogger.Warning("ModDataManager instance (" + modName + ")");
 	}
 
 

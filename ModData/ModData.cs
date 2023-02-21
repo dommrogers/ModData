@@ -5,6 +5,6 @@ internal sealed class Main : MelonMod
 {
     public override void OnInitializeMelon()
     {
-        ModDataCore.InitModDataRoot();
+
     }
 }
