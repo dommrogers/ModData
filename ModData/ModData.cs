@@ -2,8 +2,8 @@
 
 internal sealed class Main : MelonMod
 {
-    public override void OnInitializeMelon()
-    {
-
-    }
+	public override void OnInitializeMelon()
+	{
+		MelonLogger.Msg("ModData Initialized - " + BuildInfo.ModVersion);
+	}
 }

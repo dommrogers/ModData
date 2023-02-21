@@ -1,5 +1,4 @@
-﻿
-namespace ModData;
+﻿namespace ModData;
 
 internal class ModDataPatches
 {

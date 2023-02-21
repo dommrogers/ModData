@@ -11,26 +11,27 @@ public class ModDataManager
 		debugMode = debug;
 	}
 
-	public void Save(string data)
+	public static bool Save(string data)
 	{
-		Save(data, null);
+		return Save(data, null);
 	}
 
-	public void Save(string data, string? suffix)
+	public static bool Save(string data, string? suffix)
 	{
 		if (currentModName == null)
 		{
 			throw new ArgumentNullException(nameof(currentModName));
 		}
-		ModDataCore.WriteEntry(currentModName, data, suffix);
+		bool saved = ModDataCore.WriteEntry(currentModName, data, suffix);
+		return saved;
 	}
 
-	public string? Load()
+	public static string? Load()
 	{
 		return Load(null);
 	}
 
-	public string? Load(string? suffix)
+	public static string? Load(string? suffix)
 	{
 		if (currentModName == null)
 		{

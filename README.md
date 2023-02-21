@@ -1,10 +1,12 @@
-# ModData 1.1.0
+# ModData 1.2.0
 
-**WIP - NOT FOR PRODUCTION USE**
+**Pre-Release - Ready for testing**
 
 TLD utility mod for saving/loading custom mod data
 
-Patches into GameManager.LoadSaveGameSlot to capture **slotName** and create the .moddata file ([Example File](./example/))
+**Now uses an internal cache, populated when save is loaded and saves when SaveGameSystem.SaveCompletedInternal completed**
+
+Patches into SaveGameSlots.CreateSlot & GameManager.LoadSaveGameSlot to capture **slotName** and create the .moddata file ([Example File](./example/))
 
 Will only allow saving/loading of data during a loaded game.
 
@@ -19,11 +21,11 @@ using ModData;
 ```
 
 ```cs
-ModDataManager dataManager = new ModDataManager("ModName");
+ModDataManager dataManager = new ModDataManager(string modName, [bool debug = false]);
 ```
 ```cs
-void dataManager.Save(string data) 
-void dataManager.Save(string data, string? suffix)
+bool dataManager.Save(string data) 
+bool dataManager.Save(string data, string? suffix)
 ```
 ```cs
 string? dataManager.Load() 
@@ -31,7 +33,5 @@ string? dataManager.Load(string? suffix)
 ```
 
 ### Todo
-* additional validation
-* return bool for Save()
-* file & entry name sanitation
-* remove ModData file when save game is deleted ?
+
+Open to suggestions :)
