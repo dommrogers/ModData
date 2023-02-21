@@ -11,10 +11,9 @@ TLD utility mod for saving/loading custom mod data
 * Deletes associated .moddata file when the save is deleted
 * [Example File](./example/)
 
-
-* file = \\Mods\\ModData\\**slotName**.moddata (.zip file)
-* default entry filename = **modName**
-* suffix entry filename = **modName**_**Suffix**
+default file = \\Mods\\ModData\\**slotName**.moddata (.zip file)
+default entry filename = **modName**
+suffix entry filename = **modName**_**Suffix**
 
 ## Usage
 
