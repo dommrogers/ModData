@@ -3,12 +3,13 @@
 public class ModDataManager
 {
 	private static string? currentModName = null;
+	internal static bool debugMode { get; private set; } = false;
 
-	public ModDataManager(string modName)
+	public ModDataManager(string modName, bool debug = false)
 	{
 		currentModName = modName;
+		debugMode = debug;
 	}
-
 
 	public void Save(string data)
 	{
