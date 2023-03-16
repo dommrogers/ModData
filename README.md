@@ -1,8 +1,6 @@
-# ModData 1.2.0
+# ModData 1.5.0
 
-**Pre-Release - Ready for testing**
-
-TLD utility mod for saving/loading custom mod data
+TLD utility mod for saving/loading custom mod savegame data
 
 ***
 * Simple usage
