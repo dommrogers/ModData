@@ -2,7 +2,7 @@
 
 public class ModDataManager
 {
-	private static string? currentModName = null;
+	private string? currentModName = null;
 	internal static bool debugMode { get; private set; } = false;
 
 	public ModDataManager(string modName, bool debug = false)
