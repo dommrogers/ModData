@@ -52,6 +52,7 @@ internal class ModDataPatches
 	{
 		private static void Postfix()
 		{
+			ModDataCore.SaveCache();
 			ModDataCore.CloseModDataSaveSlot();
 		}
 	}
