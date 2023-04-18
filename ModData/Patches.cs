@@ -2,7 +2,7 @@
 
 internal class ModDataPatches
 {
-	[HarmonyPatch(typeof(SaveGameSlots), nameof(SaveGameSlots.CreateSlot), new Type[] { typeof(string) , typeof(SaveSlotType) , typeof(uint) , typeof(Episode) })]
+	[HarmonyPatch(typeof(SaveGameSlots), nameof(SaveGameSlots.CreateSlot), new Type[] { typeof(string), typeof(SaveSlotType), typeof(uint), typeof(Episode) })]
 	private static class ModData_SaveGameSlots_CreateSaveSlotInfo
 	{
 		private static void Prefix(string slotname, SaveSlotType gameMode, uint gameId, Episode episode)
@@ -36,7 +36,7 @@ internal class ModDataPatches
 			}
 		}
 	}
-	[HarmonyPatch(typeof(SaveGameSystem), nameof(SaveGameSystem.SaveCompletedInternal), new Type[] { typeof(bool)})]
+	[HarmonyPatch(typeof(SaveGameSystem), nameof(SaveGameSystem.SaveCompletedInternal), new Type[] { typeof(bool) })]
 	private static class ModData_SaveGameSystem_SaveCompletedInternal
 	{
 		private static void Postfix()
@@ -47,11 +47,12 @@ internal class ModDataPatches
 
 	[HarmonyPatch(typeof(GameManager), nameof(GameManager.DoExitToMainMenu))]
 	[HarmonyPatch(typeof(GameManager), nameof(GameManager.LoadMainMenu))]
-	[HarmonyPatch(typeof(GameManager), nameof(GameManager.AsyncLoadMainMenu))]
+//	[HarmonyPatch(typeof(GameManager), nameof(GameManager.AsyncLoadMainMenu))]
 	private static class ModData_GameManager_MainMenu
 	{
 		private static void Postfix()
 		{
+			ModDataCore.DebugMsg("Exit to Menu");
 			ModDataCore.SaveCache();
 			ModDataCore.CloseModDataSaveSlot();
 		}
@@ -62,8 +63,11 @@ internal class ModDataPatches
 	{
 		private static void Postfix(string name)
 		{
-			ModDataCore.CloseModDataSaveSlot();
-			ModDataCore.DeleteModDataSaveSlot(name);
+			if (name != null && name != SaveGameSlots.AUTOSAVE_SLOT_NAME && name != SaveGameSlots.QUICKSAVE_SLOT_PREFIX)
+			{
+				ModDataCore.CloseModDataSaveSlot();
+				ModDataCore.DeleteModDataSaveSlot(name);
+			}
 		}
 	}
 }

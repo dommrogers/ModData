@@ -1,4 +1,4 @@
-﻿namespace ModData;
+namespace ModData;
 
 internal class ModDataCore
 {
@@ -120,7 +120,7 @@ internal class ModDataCore
 	{
 		if (modDataSaveSlotFile == null)
 		{
-			MelonLogger.Msg(ConsoleColor.Cyan, "No SaveSlot loaded.");
+			DebugMsg("No SaveSlot loaded.");
 			return;
 		}
 		List<string> entries = ZipUtils.GetEntries(modDataSaveSlotFile);
@@ -128,6 +128,7 @@ internal class ModDataCore
 		{
 			foreach (string entry in entries)
 			{
+				DebugMsg("Cache Loaded ("+ entry + ")");
 				string? data = ZipUtils.ReadEntry(modDataSaveSlotFile, entry);
 				if (data != null)
 				{
@@ -149,6 +150,7 @@ internal class ModDataCore
 		{
 			foreach (KeyValuePair<string,string> entry in dataCache)
 			{
+				DebugMsg("Cache Saved (" + entry.Key + ")"); 
 				if (entry.Key != null && entry.Value != null)
 				{
 					string entryString = entry.Value;
