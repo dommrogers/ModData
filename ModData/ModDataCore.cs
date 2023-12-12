@@ -1,8 +1,9 @@
+using System.Diagnostics;
+
 namespace ModData;
 
 internal class ModDataCore
 {
-	internal static string ModDataEntryName { get; } = "ModData.txt";
 	internal static string modDataFolderName { get; } = "ModData";
 	internal static string modDataFileExt { get; } = ".moddata";
 	internal static string modDataRoot { get; private set; } = "";
@@ -12,14 +13,25 @@ internal class ModDataCore
 
 	internal static Dictionary<string, string> dataCache = new();
 
+	internal static bool initComplete = false;
+	internal static bool cacheLoaded = false;
+	internal static bool cacheChanged = false;
+
 	internal static void InitModDataCore(string saveName)
 	{
+		if (initComplete && cacheLoaded)
+		{
+			return;
+		}
 		InitModDataRoot();
-		DebugMsg("Loading slot " + saveName);
+		DebugMsg($"Init ModData: {saveName}");
 		modDataSaveSlotName = saveName;
 		InitModDataSaveSlot();
-
+		initComplete = true;
 		LoadCache();
+		cacheLoaded = true;
+
+
 	}
 
 	internal static void InitModDataRoot()
@@ -27,8 +39,8 @@ internal class ModDataCore
 		modDataRoot = Path.Combine(MelonEnvironment.ModsDirectory, modDataFolderName);
 		if (!Directory.Exists(modDataRoot))
 		{
-			DebugMsg("Creating modDataRoot (" + modDataRoot + ")");
 			Directory.CreateDirectory(modDataRoot);
+//			DebugMsg($"InitModDataRoot: {modDataRoot}");
 		}
 	}
 
@@ -36,17 +48,11 @@ internal class ModDataCore
 	{
 		if (modDataSaveSlotName == null)
 		{
-			DebugMsg("No SaveSlot loaded.");
+			//DebugMsg("No SaveSlot loaded.");
 			return;
 		}
 		modDataSaveSlotFile = Path.Combine(modDataRoot, modDataSaveSlotName + modDataFileExt);
-
-		// create and/or open the saveSlotFile
-		if (!File.Exists(modDataSaveSlotFile))
-		{
-			DebugMsg("Creating modDataSaveSlotFile (" + modDataSaveSlotFile + ")");
-			ZipUtils.CreateEmptyFile(modDataSaveSlotFile);
-		}
+//		DebugMsg($"InitModDataSaveSlot: {modDataSaveSlotFile}");
 	}
 
 	internal static void DeleteModDataSaveSlot(string slotName)
@@ -57,7 +63,7 @@ internal class ModDataCore
 
 		if (File.Exists(modDataSaveSlotFile))
 		{
-			DebugMsg("Deleting modDataSaveSlotFile (" + modDataSaveSlotFile + ")");
+			DebugMsg($"Delete: {modDataSaveSlotFile}");
 			File.Delete(modDataSaveSlotFile);
 		}
 
@@ -65,12 +71,14 @@ internal class ModDataCore
 
 	internal static void CloseModDataSaveSlot()
 	{
-		if (modDataSaveSlotName != null)
+		if (initComplete)
 		{
 			modDataSaveSlotName = null;
 			modDataSaveSlotFile = null;
 			dataCache.Clear();
-			DebugMsg("CloseModDataSaveSlot");
+			initComplete = false;
+			cacheLoaded = false;
+//			DebugMsg($"CloseModDataSaveSlot: {modDataSaveSlotFile}");
 		}
 	}
 
@@ -81,10 +89,17 @@ internal class ModDataCore
 		{
 			entryName += "_" + entrySuffix;
 		}
-		if (modDataSaveSlotFile == null)
+		if (!cacheLoaded)
 		{
-			DebugMsg("No SaveSlot loaded.");
+//			DebugMsg($"WriteEntry: No Cache. {entryName}");
 			return false;
+		}
+
+
+		if (dataCache.ContainsKey(entryName) && dataCache[entryName] == entryData)
+		{
+//			DebugMsg($"WriteEntry: {entryName} {entryData.Length} NO CHANGE");
+			return true;
 		}
 
 		if (dataCache.ContainsKey(entryName))
@@ -93,6 +108,9 @@ internal class ModDataCore
 		}
 
 		dataCache.Add(entryName, entryData);
+//		DebugMsg($"WriteEntry: {entryName} {entryData.Length} {entryData.Trim().Length}");
+
+		cacheChanged = true;
 		return true;
 	}
 
@@ -102,9 +120,9 @@ internal class ModDataCore
 		{
 			entryName += "_" + entrySuffix;
 		}
-		if (modDataSaveSlotFile == null)
+		if (!cacheLoaded)
 		{
-			DebugMsg("No SaveSlot loaded.");
+//			DebugMsg($"ReadEntry: No Cache. {entryName}");
 			return null;
 		}
 
@@ -118,59 +136,52 @@ internal class ModDataCore
 
 	internal static void LoadCache()
 	{
-		if (modDataSaveSlotFile == null)
+		Stopwatch sw = new Stopwatch();
+		sw.Start();
+
+		Dictionary<string, string> entries = ZipUtils.ReadEntries(modDataSaveSlotFile);
+		foreach (var entry in entries)
 		{
-			DebugMsg("No SaveSlot loaded.");
-			return;
-		}
-		List<string> entries = ZipUtils.GetEntries(modDataSaveSlotFile);
-		if (entries != null && entries.Count > 0)
-		{
-			foreach (string entry in entries)
+//			DebugMsg("Cache Loaded (" + entry.Key + ")");
+			if (entry.Value != null)
 			{
-				DebugMsg("Cache Loaded ("+ entry + ")");
-				string? data = ZipUtils.ReadEntry(modDataSaveSlotFile, entry);
-				if (data != null)
-				{
-					WriteEntry(entry, data);
-				}
+				dataCache.Add(entry.Key, entry.Value);
 			}
 		}
-		DebugMsg("Cache Loaded");
+
+		cacheLoaded = true;
+		sw.Stop();
+		DebugMsg($"Cache Loaded ({entries.Count}) ({sw.ElapsedMilliseconds}ms)");
 	}
 
 	internal static void SaveCache()
 	{
-		if (modDataSaveSlotFile == null)
+		if (!cacheLoaded)
 		{
-			DebugMsg("No SaveSlot loaded.");
+//			DebugMsg("SaveCache: No Cache.");
 			return;
 		}
+		if (!cacheChanged)
+		{
+			return;
+		}
+		Stopwatch sw = new Stopwatch();
+		sw.Start();
 		if (dataCache != null && dataCache.Count > 0)
 		{
-			foreach (KeyValuePair<string,string> entry in dataCache)
-			{
-				DebugMsg("Cache Saved (" + entry.Key + ")"); 
-				if (entry.Key != null && entry.Value != null)
-				{
-					string entryString = entry.Value;
-					if (entry.Key == ModDataEntryName)
-					{
-						entryString = ZipUtils.GetModDataLine();
-					}
-					ZipUtils.WriteEntry(modDataSaveSlotFile, entry.Key, entryString);
-				}
-			}
+			ZipUtils.WriteEntries(modDataSaveSlotFile, dataCache);
 		}
-		DebugMsg("Cache Saved");
+		sw.Stop();
+		DebugMsg($"Cache Saved ({dataCache.Count}) ({sw.ElapsedMilliseconds}ms)");
+		cacheChanged = false;
 	}
 
 	internal static void DebugMsg(string msg)
 	{
-		if (msg != null && ModDataManager.debugMode == true)
-		{
-			MelonLoader.MelonLogger.Msg(ConsoleColor.Yellow, msg);
-		}
+		//if (msg != null && ModDataManager.debugMode == true)
+		//{
+		MelonLoader.MelonLogger.Msg(ConsoleColor.Yellow, msg);
+		//}
 	}
 
 }

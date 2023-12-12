@@ -3,9 +3,9 @@
 public class ModDataManager
 {
 	private string? currentModName = null;
-	internal static bool debugMode { get; private set; } = false;
+	internal bool debugMode { get; private set; } = true;
 
-	public ModDataManager(string modName, bool debug = false)
+	public ModDataManager(string modName, bool debug = true)
 	{
 		currentModName = modName;
 		debugMode = debug;
