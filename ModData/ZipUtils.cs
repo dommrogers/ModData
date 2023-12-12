@@ -2,6 +2,13 @@
 
 internal class ZipUtils
 {
+
+	static FileStream? fileStream;
+	static ZipArchive? zipArchive;
+
+	internal static string ModDataEntryName { get; } = "ModData.txt";
+
+
 	/// <summary>
 	/// 
 	/// </summary>
@@ -18,6 +25,7 @@ internal class ZipUtils
 	/// <exception cref="ArgumentNullException"></exception>
 	internal static void CreateEmptyFile(string? filePath)
 	{
+//		ModDataCore.DebugMsg($"CreateEmptyFile: {filePath}");
 		if (filePath == null)
 		{
 			throw new ArgumentNullException(nameof(filePath));
@@ -33,7 +41,7 @@ internal class ZipUtils
 		{
 			using (ZipArchive archive = new ZipArchive(zipToOpen, ZipArchiveMode.Update))
 			{
-				ZipArchiveEntry modDataEntry = archive.CreateEntry(ModDataCore.ModDataEntryName);
+				ZipArchiveEntry modDataEntry = archive.CreateEntry(ModDataEntryName);
 				using (StreamWriter writer = new StreamWriter(modDataEntry.Open()))
 				{
 					writer.WriteLine(GetModDataLine());
@@ -49,105 +57,72 @@ internal class ZipUtils
 	/// 
 	/// </summary>
 	/// <param name="filePath"></param>
-	/// <param name="entryName"></param>
-	/// <param name="entryData"></param>
+	/// <param name="entries">Dictionary<string, string></param>
 	/// <exception cref="ArgumentNullException"></exception>
-	internal static void WriteEntry(string filePath, string entryName, string entryData)
+	internal static void WriteEntries(string filePath, Dictionary<string, string> entries)
 	{
-		if (filePath == null)
-		{
-			throw new ArgumentNullException(nameof(filePath));
-		}
-		if (entryName == null)
-		{
-			throw new ArgumentNullException(nameof(entryName));
-		}
+		LoadArchive(filePath);
 
-		filePath = SanitizeFilePath(filePath);
-		entryName = SanitizeEntryName(entryName);
-
-		if (!File.Exists(filePath))
+		entries[ModDataEntryName] = GetModDataLine();
+		foreach (KeyValuePair<string, string> e in entries)
 		{
-			CreateEmptyFile(filePath);
-		}
-
-		using (FileStream zipToOpen = new FileStream(filePath, FileMode.Open))
-		{
-			using (ZipArchive archive = new ZipArchive(zipToOpen, ZipArchiveMode.Update))
+			string entryName = e.Key;
+			if (entryName == null)
 			{
-				if (archive.GetEntry(entryName) != null)
-				{
-					archive.GetEntry(entryName).Delete();
-				}
-				ZipArchiveEntry modDataEntry = archive.CreateEntry(entryName);
-				using (StreamWriter writer = new StreamWriter(modDataEntry.Open()))
-				{
-					writer.Write(entryData);
-					writer.Dispose();
-				}
-				archive.Dispose();
-				zipToOpen.Dispose();
+				throw new ArgumentNullException(nameof(entryName));
+			}
+			entryName = SanitizeEntryName(entryName);
+			if (zipArchive.GetEntry(entryName) != null)
+			{
+				zipArchive.GetEntry(entryName).Delete();
+//				ModDataCore.DebugMsg($"WriteEntries->Delete: {filePath} {entryName}");
+			}
+			string entryData = e.Value;
+			ZipArchiveEntry modDataEntry = zipArchive.CreateEntry(entryName);
+			using (StreamWriter writer = new StreamWriter(modDataEntry.Open()))
+			{
+				writer.Write(entryData);
+				writer.Dispose();
+//				ModDataCore.DebugMsg($"WriteEntries->Write: {entryName} {entryData.Length}");
 			}
 		}
+		CloseArchive();
 	}
 
 	/// <summary>
 	/// 
 	/// </summary>
 	/// <param name="filePath"></param>
-	/// <param name="entryName"></param>
 	/// <returns></returns>
-	/// <exception cref="ArgumentNullException"></exception>
-	internal static string? ReadEntry(string filePath, string entryName)
+	internal static Dictionary<string,string> ReadEntries(string filePath)
 	{
-		if (filePath == null)
-		{
-			throw new ArgumentNullException(nameof(filePath));
-		}
-		if (entryName == null)
-		{
-			throw new ArgumentNullException(nameof(entryName));
-		}
+		var entries = new Dictionary<string, string>();
+		LoadArchive(filePath);
 
-		filePath = SanitizeFilePath(filePath);
-		entryName = SanitizeEntryName(entryName);
-
-		if (!File.Exists(filePath))
+		foreach (var entry in zipArchive.Entries)
 		{
-			CreateEmptyFile(filePath);
-		}
-
-		using (FileStream zipToOpen = new FileStream(filePath, FileMode.Open))
-		{
-			using (ZipArchive archive = new ZipArchive(zipToOpen, ZipArchiveMode.Read))
+			if(entry != null)
 			{
-				ZipArchiveEntry? modDataEntry = archive.GetEntry(entryName);
-				if (modDataEntry == null)
-				{
-					return null;
-				}
-				using (StreamReader reader = new StreamReader(modDataEntry.Open()))
+				using (StreamReader reader = new StreamReader(entry.Open()))
 				{
 					string? result = reader.ReadToEnd();
 					reader.Dispose();
-					archive.Dispose();
-					zipToOpen.Dispose();
-					return result;
+					entries.Add(entry.Name,result);
 				}
 			}
 		}
-	}
-	
-	/// <summary>
-	/// 
-	/// </summary>
-	/// <param name="filePath"></param>
-	/// <returns></returns>
-	/// <exception cref="ArgumentNullException"></exception>
-	internal static List<string> GetEntries(string filePath)
-	{
-		List<string> list = new();
 
+		CloseArchive();
+		return entries;
+	}
+
+	internal static void LoadArchive(string filePath)
+	{
+//		ModDataCore.DebugMsg($"LoadArchive: {filePath} {zipArchive != null}");
+		if (zipArchive != null)
+		{
+			return;
+		}
 		if (filePath == null)
 		{
 			throw new ArgumentNullException(nameof(filePath));
@@ -160,24 +135,17 @@ internal class ZipUtils
 			CreateEmptyFile(filePath);
 		}
 
-		using (FileStream zipToOpen = new FileStream(filePath, FileMode.Open))
-		{
-			using (ZipArchive archive = new ZipArchive(zipToOpen, ZipArchiveMode.Read))
-			{
-				foreach (ZipArchiveEntry? modDataEntry in archive.Entries)
-				{
-					if (modDataEntry != null)
-					{
-						if (modDataEntry.Name != null)
-						{
-							list.Add(modDataEntry.Name);
-						}
-					}
-				}
-			}
-		}
+		fileStream = new FileStream(filePath, FileMode.Open);
+		zipArchive = new ZipArchive(fileStream, ZipArchiveMode.Update);
+	}
 
-		return list;
+	internal static void CloseArchive()
+	{
+//		ModDataCore.DebugMsg($"CloseArchive");
+		zipArchive.Dispose();
+		fileStream.Dispose();
+		zipArchive = null;
+		fileStream = null;
 	}
 
 	// placeholders, may not ever need them
