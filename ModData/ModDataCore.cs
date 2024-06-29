@@ -170,8 +170,8 @@ internal class ModDataCore
 		if (dataCache != null && dataCache.Count > 0)
 		{
 			ZipUtils.WriteEntries(modDataSaveSlotFile, dataCache);
-		}
-		sw.Stop();
+        }
+        sw.Stop();
 		DebugMsg($"Cache Saved ({dataCache.Count}) ({sw.ElapsedMilliseconds}ms)");
 		cacheChanged = false;
 	}

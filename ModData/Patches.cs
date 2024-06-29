@@ -36,7 +36,9 @@ internal class ModDataPatches
 			}
 		}
 	}
-	[HarmonyPatch(typeof(SaveGameSystem), nameof(SaveGameSystem.SaveCompletedInternal), new Type[] { typeof(bool) })]
+
+    [HarmonyPatch(typeof(ConsoleManager), nameof(ConsoleManager.CONSOLE_save))]
+    [HarmonyPatch(typeof(GameManager), nameof(GameManager.SaveGameAndDisplayHUDMessage))]
 	private static class ModData_SaveGameSystem_SaveCompletedInternal
 	{
 		private static void Postfix()
@@ -53,7 +55,7 @@ internal class ModDataPatches
 		private static void Postfix()
 		{
 			ModDataCore.DebugMsg("Exit to Menu");
-			ModDataCore.SaveCache();
+			//ModDataCore.SaveCache();
 			ModDataCore.CloseModDataSaveSlot();
 		}
 	}
