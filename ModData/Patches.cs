@@ -1,4 +1,6 @@
-﻿namespace ModData;
+﻿using static Il2Cpp.SaveGameSlots;
+
+namespace ModData;
 
 internal class ModDataPatches
 {
@@ -37,9 +39,8 @@ internal class ModDataPatches
 		}
 	}
 
-    [HarmonyPatch(typeof(ConsoleManager), nameof(ConsoleManager.CONSOLE_save))]
-    [HarmonyPatch(typeof(GameManager), nameof(GameManager.SaveGameAndDisplayHUDMessage))]
-	private static class ModData_SaveGameSystem_SaveCompletedInternal
+	[HarmonyPatch(typeof(SaveGameSlots), nameof(SaveGameSlots.WriteSlotToDisk), new Type[] { typeof(SlotData), typeof(Timestamp) })]
+	private static class ModData_SaveGameSlots_WriteSlotToDisk_Postfix
 	{
 		private static void Postfix()
 		{
@@ -72,4 +73,6 @@ internal class ModDataPatches
 			}
 		}
 	}
+
+
 }
