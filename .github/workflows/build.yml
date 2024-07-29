@@ -27,14 +27,14 @@ jobs:
       run: dotnet build /p:Configuration=Release
 
     - name: Upload
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: ModData
         path: ./bin/Release/net6.0/ModData.dll
         if-no-files-found: error
         
     - name: Upload
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: ModData_nupkg
         path: ./bin/Release/*.nupkg
