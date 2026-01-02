@@ -4,6 +4,7 @@ namespace ModData;
 
 internal class ModDataPatches
 {
+
 	[HarmonyPatch(typeof(SaveGameSlots), nameof(SaveGameSlots.CreateSlot), new Type[] { typeof(string), typeof(SaveSlotType), typeof(uint), typeof(Episode) })]
 	private static class ModData_SaveGameSlots_CreateSaveSlotInfo
 	{
